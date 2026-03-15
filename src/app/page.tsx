@@ -53,6 +53,7 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState<number>(
     Math.max(0, Math.min(getTodayDayIndex(), 5))
   );
+  const [viewTab, setViewTab] = useState<string>("daily");
 
   const monday = getMonday(addDays(new Date(), weekOffset * 7));
   const mondayStr = formatDate(monday);
@@ -174,7 +175,7 @@ export default function Home() {
 
       {/* Menu content */}
       {!loading && currentShop && (
-        <Tabs defaultValue="daily">
+        <Tabs value={viewTab} onValueChange={(v) => setViewTab(v as string)}>
           <TabsList className="w-full mb-4">
             <TabsTrigger value="daily" className="flex-1">
               일간
