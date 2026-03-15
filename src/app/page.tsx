@@ -2,10 +2,20 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { MenuResponse, Shop } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Ticket,
+  UtensilsCrossed,
+} from "lucide-react";
 
 const DAYS = ["월", "화", "수", "목", "금", "토"] as const;
 const TICKET_URL = "https://fnb.hanyang.ac.kr/front/fnbgMdStmtApply";
-// 체육부실 식당 ID
 const CHEYUK_SHOP_ID = "ykXDLy--QLyRQBF0owQPhg";
 
 function getMonday(date: Date): Date {
@@ -18,6 +28,10 @@ function getMonday(date: Date): Date {
 
 function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+function formatDateShort(date: Date): string {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
 function addDays(date: Date, days: number): Date {
@@ -39,7 +53,6 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState<number>(
     Math.max(0, Math.min(getTodayDayIndex(), 5))
   );
-  const [view, setView] = useState<"today" | "week">("today");
 
   const monday = getMonday(addDays(new Date(), weekOffset * 7));
   const mondayStr = formatDate(monday);
@@ -65,133 +78,129 @@ export default function Home() {
   }, [fetchMenu]);
 
   const currentShop = data?.shops.find((s) => s.id === selectedShop);
+  const isCheyuk = selectedShop === CHEYUK_SHOP_ID;
 
   return (
-    <div className="min-h-screen max-w-2xl mx-auto px-4 py-6">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">HYMeal</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          한양대학교 식당 메뉴
-        </p>
+    <div className="min-h-screen max-w-2xl mx-auto px-4 py-6 pb-20">
+      {/* Header */}
+      <header className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground">
+            <UtensilsCrossed className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight leading-tight">
+              HYMeal
+            </h1>
+            <p className="text-xs text-muted-foreground">한양대 식단</p>
+          </div>
+        </div>
+        {isCheyuk && (
+          <a href={TICKET_URL} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="sm">
+              <Ticket className="w-3.5 h-3.5" />
+              식권 구매
+            </Button>
+          </a>
+        )}
       </header>
 
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-4">
-        <button
+      <div className="flex items-center justify-between mb-5">
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => setWeekOffset((p) => p - 1)}
-          className="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm font-medium transition-colors"
         >
-          &larr; 이전주
-        </button>
-        <span className="text-sm font-medium">
-          {mondayStr} ~ {formatDate(addDays(monday, 5))}
-        </span>
-        <button
-          onClick={() => setWeekOffset((p) => p + 1)}
-          className="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm font-medium transition-colors"
-        >
-          다음주 &rarr;
-        </button>
-      </div>
-
-      {weekOffset !== 0 && (
-        <div className="flex justify-center mb-4">
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+        {weekOffset === 0 ? (
+          <span className="text-sm font-medium">
+            {formatDateShort(monday)} ~ {formatDateShort(addDays(monday, 5))}
+          </span>
+        ) : (
           <button
             onClick={() => {
               setWeekOffset(0);
               setSelectedDay(Math.max(0, Math.min(getTodayDayIndex(), 5)));
             }}
-            className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/80 transition-colors"
           >
-            오늘로 돌아가기
+            <RotateCcw className="w-3 h-3" />
+            오늘로
           </button>
-        </div>
-      )}
+        )}
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setWeekOffset((p) => p + 1)}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* Day tabs */}
+      <DayTabs
+        monday={monday}
+        selectedDay={selectedDay}
+        setSelectedDay={setSelectedDay}
+        weekOffset={weekOffset}
+      />
 
       {/* Shop tabs */}
       {data && (
-        <div className="flex gap-1.5 overflow-x-auto pb-2 mb-4">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 mb-5 mt-4">
           {data.shops.map((shop) => (
-            <button
+            <Button
               key={shop.id}
+              variant={selectedShop === shop.id ? "default" : "secondary"}
+              size="sm"
               onClick={() => setSelectedShop(shop.id)}
-              className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedShop === shop.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-              }`}
+              className="shrink-0"
             >
               {shop.name}
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
-      {/* View toggle + Ticket button */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 w-fit">
-          <button
-            onClick={() => setView("today")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              view === "today"
-                ? "bg-white dark:bg-slate-600 shadow-sm"
-                : "text-slate-500"
-            }`}
-          >
-            일간
-          </button>
-          <button
-            onClick={() => setView("week")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              view === "week"
-                ? "bg-white dark:bg-slate-600 shadow-sm"
-                : "text-slate-500"
-            }`}
-          >
-            주간
-          </button>
-        </div>
-
-        {selectedShop === CHEYUK_SHOP_ID && (
-          <a
-            href={TICKET_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
-          >
-            식권 구매 &rarr;
-          </a>
-        )}
-      </div>
-
+      {/* Loading */}
       {loading && (
-        <div className="flex justify-center py-20">
-          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-muted-foreground">메뉴를 불러오는 중...</p>
         </div>
       )}
 
+      {/* Menu content */}
       {!loading && currentShop && (
-        <>
-          {view === "today" ? (
-            <TodayView
+        <Tabs defaultValue="daily">
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="daily" className="flex-1">
+              일간
+            </TabsTrigger>
+            <TabsTrigger value="weekly" className="flex-1">
+              주간
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="daily">
+            <DailyMenu
               shop={currentShop}
               selectedDay={selectedDay}
-              setSelectedDay={setSelectedDay}
-              weekOffset={weekOffset}
             />
-          ) : (
-            <WeekView
+          </TabsContent>
+          <TabsContent value="weekly">
+            <WeeklyMenu
               shop={currentShop}
               selectedDay={selectedDay}
-              setSelectedDay={setSelectedDay}
               weekOffset={weekOffset}
             />
-          )}
-        </>
+          </TabsContent>
+        </Tabs>
       )}
 
       {!loading && data?.shops.length === 0 && (
-        <div className="text-center py-20 text-slate-400">
+        <div className="text-center py-20 text-muted-foreground text-sm">
           메뉴 데이터가 없습니다.
         </div>
       )}
@@ -199,59 +208,94 @@ export default function Home() {
   );
 }
 
-function TodayView({
-  shop,
+function DayTabs({
+  monday,
   selectedDay,
   setSelectedDay,
   weekOffset,
 }: {
-  shop: Shop;
+  monday: Date;
   selectedDay: number;
   setSelectedDay: (d: number) => void;
   weekOffset: number;
 }) {
   const todayIdx = getTodayDayIndex();
-  const dayMenu = shop.weeklyMenus[selectedDay];
 
   return (
-    <div>
-      <DayTabs
-        selectedDay={selectedDay}
-        setSelectedDay={setSelectedDay}
-        todayIdx={weekOffset === 0 ? todayIdx : -1}
-      />
-      {dayMenu && dayMenu.items.length > 0 ? (
-        <div className="space-y-3 mt-4">
-          {dayMenu.items.map((item, i) => (
-            <div
-              key={i}
-              className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-700"
-            >
-              <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-2">
-                {item.category}
-              </span>
-              <p className="text-sm leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 text-slate-400 text-sm">
-          해당 요일에는 운영하지 않습니다.
-        </div>
-      )}
+    <div className="grid grid-cols-6 gap-1.5">
+      {DAYS.map((day, i) => {
+        const date = addDays(monday, i);
+        const isToday = weekOffset === 0 && i === todayIdx;
+        const isSelected = selectedDay === i;
+
+        return (
+          <button
+            key={day}
+            onClick={() => setSelectedDay(i)}
+            className={`
+              relative flex flex-col items-center gap-0.5 py-2 rounded-xl text-center transition-all
+              ${
+                isSelected
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "hover:bg-muted"
+              }
+            `}
+          >
+            <span className="text-[11px] font-medium opacity-70">{day}</span>
+            <span className="text-sm font-semibold">{date.getDate()}</span>
+            {isToday && !isSelected && (
+              <span className="absolute top-1 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-function WeekView({
+function DailyMenu({
   shop,
   selectedDay,
-  setSelectedDay,
+}: {
+  shop: Shop;
+  selectedDay: number;
+}) {
+  const dayMenu = shop.weeklyMenus[selectedDay];
+
+  if (!dayMenu || dayMenu.items.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <UtensilsCrossed className="w-8 h-8 mb-2 opacity-30" />
+          <p className="text-sm">해당 요일에는 운영하지 않습니다.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {dayMenu.items.map((item, i) => (
+        <Card key={i} size="sm">
+          <CardContent className="flex flex-col gap-1.5">
+            <Badge variant="secondary" className="w-fit">
+              {item.category}
+            </Badge>
+            <p className="text-sm leading-relaxed">{item.desc}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function WeeklyMenu({
+  shop,
+  selectedDay,
   weekOffset,
 }: {
   shop: Shop;
   selectedDay: number;
-  setSelectedDay: (d: number) => void;
   weekOffset: number;
 }) {
   const todayIdx = getTodayDayIndex();
@@ -263,28 +307,22 @@ function WeekView({
   );
 
   return (
-    <div>
-      <DayTabs
-        selectedDay={selectedDay}
-        setSelectedDay={setSelectedDay}
-        todayIdx={weekOffset === 0 ? todayIdx : -1}
-      />
-
-      {/* Desktop: full week table */}
-      <div className="hidden md:block mt-4 overflow-x-auto">
+    <>
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr>
-              <th className="text-left p-2 border-b border-slate-200 dark:border-slate-700 text-slate-500 w-24">
+              <th className="text-left p-2.5 border-b text-muted-foreground font-medium w-20">
                 구분
               </th>
               {DAYS.map((day, i) => (
                 <th
                   key={day}
-                  className={`text-left p-2 border-b border-slate-200 dark:border-slate-700 ${
+                  className={`text-left p-2.5 border-b font-medium ${
                     weekOffset === 0 && i === todayIdx
-                      ? "text-blue-600 dark:text-blue-400 font-bold"
-                      : "text-slate-500"
+                      ? "text-primary"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {day}
@@ -294,25 +332,28 @@ function WeekView({
           </thead>
           <tbody>
             {allCategories.map((cat) => (
-              <tr key={cat}>
-                <td className="p-2 border-b border-slate-100 dark:border-slate-700/50 font-medium text-xs text-blue-700 dark:text-blue-300 align-top whitespace-nowrap">
-                  {cat}
+              <tr key={cat} className="group">
+                <td className="p-2.5 border-b align-top">
+                  <Badge variant="secondary" className="text-[11px]">
+                    {cat}
+                  </Badge>
                 </td>
                 {DAYS.map((day, i) => {
                   const dayMenu = shop.weeklyMenus[i];
                   const item = dayMenu?.items.find(
                     (it) => it.category === cat
                   );
+                  const isToday = weekOffset === 0 && i === todayIdx;
                   return (
                     <td
                       key={day}
-                      className={`p-2 border-b border-slate-100 dark:border-slate-700/50 text-xs align-top leading-relaxed ${
-                        weekOffset === 0 && i === todayIdx
-                          ? "bg-blue-50/50 dark:bg-blue-900/10"
-                          : ""
+                      className={`p-2.5 border-b text-xs align-top leading-relaxed ${
+                        isToday ? "bg-primary/5" : ""
                       }`}
                     >
-                      {item?.desc || "-"}
+                      {item?.desc || (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </td>
                   );
                 })}
@@ -322,59 +363,44 @@ function WeekView({
         </table>
       </div>
 
-      {/* Mobile: selected day detail */}
-      <div className="md:hidden mt-4">
-        {shop.weeklyMenus[selectedDay]?.items.length > 0 ? (
-          <div className="space-y-3">
-            {shop.weeklyMenus[selectedDay].items.map((item, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-700"
-              >
-                <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-2">
-                  {item.category}
+      {/* Mobile: all days stacked */}
+      <div className="md:hidden space-y-5">
+        {DAYS.map((day, i) => {
+          const dayMenu = shop.weeklyMenus[i];
+          const isToday = weekOffset === 0 && i === todayIdx;
+          if (!dayMenu || dayMenu.items.length === 0) return null;
+          return (
+            <div key={day}>
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  className={`text-sm font-semibold ${
+                    isToday ? "text-primary" : ""
+                  }`}
+                >
+                  {day}요일
                 </span>
-                <p className="text-sm leading-relaxed">{item.desc}</p>
+                {isToday && (
+                  <Badge variant="default" className="text-[10px]">
+                    오늘
+                  </Badge>
+                )}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-slate-400 text-sm">
-            해당 요일에는 운영하지 않습니다.
-          </div>
-        )}
+              <div className="space-y-2">
+                {dayMenu.items.map((item, j) => (
+                  <Card key={j} size="sm">
+                    <CardContent className="flex flex-col gap-1.5">
+                      <Badge variant="secondary" className="w-fit">
+                        {item.category}
+                      </Badge>
+                      <p className="text-sm leading-relaxed">{item.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
-    </div>
-  );
-}
-
-function DayTabs({
-  selectedDay,
-  setSelectedDay,
-  todayIdx,
-}: {
-  selectedDay: number;
-  setSelectedDay: (d: number) => void;
-  todayIdx: number;
-}) {
-  return (
-    <div className="flex gap-1">
-      {DAYS.map((day, i) => (
-        <button
-          key={day}
-          onClick={() => setSelectedDay(i)}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors relative ${
-            selectedDay === i
-              ? "bg-blue-600 text-white"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"
-          }`}
-        >
-          {day}
-          {i === todayIdx && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-          )}
-        </button>
-      ))}
-    </div>
+    </>
   );
 }
