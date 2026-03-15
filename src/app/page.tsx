@@ -268,7 +268,8 @@ function DailyMenu({
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <UtensilsCrossed className="w-8 h-8 mb-2 opacity-30" />
-          <p className="text-sm">해당 요일에는 운영하지 않습니다.</p>
+          <p className="text-sm">등록된 식단이 없습니다.</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">운영하지 않거나 아직 등록되지 않았을 수 있습니다.</p>
         </CardContent>
       </Card>
     );
@@ -369,7 +370,6 @@ function WeeklyMenu({
         {DAYS.map((day, i) => {
           const dayMenu = shop.weeklyMenus[i];
           const isToday = weekOffset === 0 && i === todayIdx;
-          if (!dayMenu || dayMenu.items.length === 0) return null;
           return (
             <div key={day}>
               <div className="flex items-center gap-2 mb-2">
@@ -386,18 +386,24 @@ function WeeklyMenu({
                   </Badge>
                 )}
               </div>
-              <div className="space-y-2">
-                {dayMenu.items.map((item, j) => (
-                  <Card key={j} size="sm">
-                    <CardContent className="flex flex-col gap-1.5">
-                      <Badge variant="secondary" className="w-fit">
-                        {item.category}
-                      </Badge>
-                      <p className="text-sm leading-relaxed">{item.desc}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {dayMenu && dayMenu.items.length > 0 ? (
+                <div className="space-y-2">
+                  {dayMenu.items.map((item, j) => (
+                    <Card key={j} size="sm">
+                      <CardContent className="flex flex-col gap-1.5">
+                        <Badge variant="secondary" className="w-fit">
+                          {item.category}
+                        </Badge>
+                        <p className="text-sm leading-relaxed">{item.desc}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground py-3">
+                  등록된 식단이 없습니다.
+                </p>
+              )}
             </div>
           );
         })}
