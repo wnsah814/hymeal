@@ -73,7 +73,7 @@ export default function OGImage() {
             letterSpacing: 2,
           }}
         >
-          한양대학교 식단을 한눈에
+          한양대 학식을 한눈에
         </span>
       </div>
     ),

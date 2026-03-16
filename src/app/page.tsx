@@ -97,7 +97,7 @@ export default function Home() {
             <h1 className="text-lg font-bold tracking-tight leading-tight">
               HYMeal
             </h1>
-            <p className="text-xs text-muted-foreground">한양대 식단</p>
+            <p className="text-xs text-muted-foreground">한양대 학식</p>
           </div>
         </div>
         {isCheyuk && (

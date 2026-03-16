@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://hymeal.vercel.app"),
   title: "HYMeal - 한양대 학식",
-  description: "한양대학교 식당 메뉴를 한눈에",
+  description: "한양대 학식을 한눈에",
 };
 
 export const viewport: Viewport = {
