@@ -353,6 +353,14 @@ function WeeklyMenu({
                   <Badge variant="secondary" className="text-[11px]">
                     {cat}
                   </Badge>
+                  {(() => {
+                    const price = shop.weeklyMenus
+                      .flatMap((d) => d.items)
+                      .find((it) => it.category === cat)?.price;
+                    return price ? (
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{price}</p>
+                    ) : null;
+                  })()}
                 </td>
                 {DAYS.map((day, i) => {
                   const dayMenu = shop.weeklyMenus[i];
