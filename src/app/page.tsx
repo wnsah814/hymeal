@@ -351,7 +351,9 @@ function WeeklyMenu({
               <tr key={cat} className="group">
                 <td className="p-2.5 border-b align-top">
                   <Badge variant="secondary" className="text-[11px]">
-                    {cat}
+                    {cat
+                      .replace("Korean Dining", "KR")
+                      .replace("International Dining", "INT")}
                   </Badge>
                   {(() => {
                     const price = shop.weeklyMenus
