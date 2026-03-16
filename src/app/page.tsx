@@ -7,8 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  MapPin,
+  Phone,
   RotateCcw,
   Ticket,
   UtensilsCrossed,
@@ -163,6 +167,11 @@ export default function Home() {
             </Button>
           ))}
         </div>
+      )}
+
+      {/* Shop info */}
+      {!loading && currentShop && (
+        <ShopInfoPanel shop={currentShop} />
       )}
 
       {/* Loading */}
@@ -421,5 +430,53 @@ function WeeklyMenu({
         })}
       </div>
     </>
+  );
+}
+
+function ShopInfoPanel({ shop }: { shop: Shop }) {
+  const [open, setOpen] = useState(false);
+  const { location, hours, phone } = shop.shopInfo;
+
+  if (!location && !hours) return null;
+
+  return (
+    <div className="mb-4">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Clock className="w-3.5 h-3.5" />
+        <span>운영정보</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <Card size="sm" className="mt-2">
+          <CardContent className="flex flex-col gap-3 text-sm">
+            {location && (
+              <div className="flex gap-2">
+                <MapPin className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <span>{location}</span>
+              </div>
+            )}
+            {hours && (
+              <div className="flex gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="whitespace-pre-line text-xs leading-relaxed">{hours}</p>
+              </div>
+            )}
+            {phone && (
+              <div className="flex gap-2">
+                <Phone className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <a href={`tel:${phone}`} className="text-primary hover:underline">
+                  {phone}
+                </a>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

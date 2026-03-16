@@ -55,7 +55,45 @@ export function parseMenuHtml(html: string): Shop[] {
       .trim()
       .replace(/\s+/g, " ");
 
-    shops.push({ id, code, name, date, todayMenus, weeklyMenus, info });
+    // Structured shop info
+    const location = $info.find("th:contains('위치')").next("td").text().trim();
+    const $hoursTd = $info.find("th:contains('운영시간')").next("td");
+    const hoursHtml = $hoursTd.html() || "";
+    const hoursLines = hoursHtml
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    // Extract phone number
+    const phoneLine = hoursLines.find((l) => /☎/.test(l));
+    const phone = phoneLine?.replace(/☎\s*/, "").trim() || "";
+
+    // Filter out noise lines (원산지, 문의, phone) to keep only hours
+    const hours = hoursLines
+      .filter(
+        (l) =>
+          !l.includes("원산지") &&
+          !l.includes("문의") &&
+          !l.includes("☎") &&
+          !l.includes("RE-OPEN") &&
+          !l.includes("감사드립니다") &&
+          !l.includes("재오픈") &&
+          !l.includes("헤이영") &&
+          !l.includes("식권은") &&
+          !l.includes("식권신청") &&
+          !l.includes("고객 여러분") &&
+          !l.includes("구입 가능")
+      )
+      .join("\n");
+
+    const shopInfo = { location, hours, phone };
+
+    shops.push({ id, code, name, date, todayMenus, weeklyMenus, info, shopInfo });
   });
 
   return shops;

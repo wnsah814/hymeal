@@ -16,6 +16,12 @@ export interface WeeklyDayMenu {
   items: WeeklyMenuItem[];
 }
 
+export interface ShopInfo {
+  location: string;
+  hours: string;
+  phone: string;
+}
+
 export interface Shop {
   id: string;
   code: string;
@@ -24,6 +30,7 @@ export interface Shop {
   todayMenus: MenuItem[];
   weeklyMenus: WeeklyDayMenu[];
   info: string;
+  shopInfo: ShopInfo;
 }
 
 export interface MenuResponse {
