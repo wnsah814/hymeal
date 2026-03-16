@@ -8,6 +8,7 @@ export interface MenuItem {
 export interface WeeklyMenuItem {
   category: string;
   descs: string[];
+  price: string;
 }
 
 export interface WeeklyDayMenu {

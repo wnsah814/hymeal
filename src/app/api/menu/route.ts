@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseMenuHtml, parseDonationMenu, enrichBreakfastDay, enrichWeeklyDay } from "@/lib/parser";
+import { parseMenuHtml, parseDonationMenu, parseSectionPrices, enrichBreakfastDay, enrichWeeklyDay, applySectionPrices } from "@/lib/parser";
 import type { MenuResponse } from "@/lib/types";
 
 const BASE_URL = "https://fnb.hanyang.ac.kr/front/fnbmMdMenu";
@@ -56,6 +56,12 @@ export async function GET(request: NextRequest) {
           enrichWeeklyDay(shop, dayIdx, dayShop.todayMenus);
         }
       }
+    }
+
+    // Apply section-level prices (오늘의 라면, 오늘의 컵밥 등)
+    const sectionPrices = parseSectionPrices(htmls[0]);
+    for (const shop of shops) {
+      applySectionPrices(shop, sectionPrices);
     }
 
     const data: MenuResponse = {

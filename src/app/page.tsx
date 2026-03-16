@@ -280,9 +280,14 @@ function DailyMenu({
       {dayMenu.items.map((item, i) => (
         <Card key={i} size="sm">
           <CardContent className="flex flex-col gap-1.5">
-            <Badge variant="secondary" className="w-fit">
-              {item.category}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="w-fit">
+                {item.category}
+              </Badge>
+              {item.price && (
+                <span className="text-xs text-muted-foreground">{item.price}</span>
+              )}
+            </div>
             <p className="text-sm leading-relaxed whitespace-pre-line">{item.category === "천원의 아침밥" ? item.descs.join("\n") : item.descs.join(" ")}</p>
           </CardContent>
         </Card>
@@ -393,9 +398,14 @@ function WeeklyMenu({
                   {dayMenu.items.map((item, j) => (
                     <Card key={j} size="sm">
                       <CardContent className="flex flex-col gap-1.5">
-                        <Badge variant="secondary" className="w-fit">
-                          {item.category}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="w-fit">
+                            {item.category}
+                          </Badge>
+                          {item.price && (
+                            <span className="text-xs text-muted-foreground">{item.price}</span>
+                          )}
+                        </div>
                         <p className="text-sm leading-relaxed whitespace-pre-line">{item.category === "천원의 아침밥" ? item.descs.join("\n") : item.descs.join(" ")}</p>
                       </CardContent>
                     </Card>

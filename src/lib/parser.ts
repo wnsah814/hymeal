@@ -41,7 +41,7 @@ export function parseMenuHtml(html: string): Shop[] {
           if (text) descs.push(text);
         });
         if (category || descs.length > 0) {
-          items.push({ category, descs });
+          items.push({ category, descs, price: "" });
         }
       });
       weeklyMenus.push({ day, items });
@@ -59,6 +59,23 @@ export function parseMenuHtml(html: string): Shop[] {
   });
 
   return shops;
+}
+
+/**
+ * Parse section-level prices (천원의 아침밥, 오늘의 라면, 오늘의 컵밥 등)
+ * from the standalone .section-menu blocks.
+ */
+export function parseSectionPrices(html: string): Record<string, string> {
+  const $ = cheerio.load(html);
+  const prices: Record<string, string> = {};
+  $(".section-menu").each((_i, el) => {
+    const title = $(el).find(".section-title b").text().trim();
+    const price = $(el).find(".price").first().text().trim();
+    if (title && price) {
+      prices[title] = price;
+    }
+  });
+  return prices;
 }
 
 /**
@@ -100,6 +117,9 @@ export function enrichBreakfastDay(
     if (descs.length > 0) {
       breakfastItem.descs = descs;
     }
+    if (!breakfastItem.price) {
+      breakfastItem.price = "1,000원";
+    }
   }
 }
 
@@ -122,14 +142,34 @@ export function enrichWeeklyDay(
   if (!dayMenu) return;
 
   for (const todayItem of todayMenus) {
-    if (isEmptyDesc(todayItem.desc)) continue;
-
     // Match by category name
     const weeklyItem = dayMenu.items.find(
       (item) => item.category === todayItem.category
     );
-    if (weeklyItem && weeklyItem.descs.length === 1) {
+    if (!weeklyItem) continue;
+
+    if (!isEmptyDesc(todayItem.desc) && weeklyItem.descs.length === 1) {
       weeklyItem.descs.push(todayItem.desc);
+    }
+    if (todayItem.price && !weeklyItem.price) {
+      weeklyItem.price = todayItem.price;
+    }
+  }
+}
+
+/**
+ * Apply section-level prices to weekly menu items that don't have a price yet.
+ * Matches by category name (e.g. "오늘의 라면" → "오늘의 라면").
+ */
+export function applySectionPrices(
+  shop: Shop,
+  sectionPrices: Record<string, string>
+) {
+  for (const dayMenu of shop.weeklyMenus) {
+    for (const item of dayMenu.items) {
+      if (!item.price && sectionPrices[item.category]) {
+        item.price = sectionPrices[item.category];
+      }
     }
   }
 }
