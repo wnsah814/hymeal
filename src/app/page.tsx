@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* Shop tabs */}
       {data && (
-        <div className="flex gap-1.5 overflow-x-auto pb-1 mb-5 mt-4">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-5 mt-4">
           {data.shops.map((shop) => (
             <Button
               key={shop.id}
@@ -325,7 +325,7 @@ function WeeklyMenu({
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto no-scrollbar">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr>
