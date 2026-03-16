@@ -86,7 +86,7 @@ export default function Home() {
   const isCheyuk = selectedShop === CHEYUK_SHOP_ID;
 
   return (
-    <div className="min-h-screen max-w-2xl mx-auto px-4 py-6 pb-20">
+    <div className="min-h-screen max-w-2xl md:max-w-4xl mx-auto px-4 py-6 pb-20">
       {/* Header */}
       <header className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2.5">
@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* Shop tabs */}
       {data && (
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-5 mt-4">
+        <div className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pb-1 mb-5 mt-4">
           {data.shops.map((shop) => (
             <Button
               key={shop.id}
@@ -185,7 +185,7 @@ export default function Home() {
       {/* Menu content */}
       {!loading && currentShop && (
         <Tabs value={viewTab} onValueChange={(v) => setViewTab(v as string)}>
-          <TabsList className="w-full mb-4">
+          <TabsList className="w-full md:w-auto mb-4">
             <TabsTrigger value="daily" className="flex-1">
               일간
             </TabsTrigger>
@@ -232,7 +232,7 @@ function DayTabs({
   const todayIdx = getTodayDayIndex();
 
   return (
-    <div className="grid grid-cols-6 gap-1.5">
+    <div className="grid grid-cols-6 gap-1.5 md:gap-2.5">
       {DAYS.map((day, i) => {
         const date = addDays(monday, i);
         const isToday = weekOffset === 0 && i === todayIdx;
@@ -243,7 +243,7 @@ function DayTabs({
             key={day}
             onClick={() => setSelectedDay(i)}
             className={`
-              relative flex flex-col items-center gap-0.5 py-2 rounded-xl text-center transition-all
+              relative flex flex-col items-center gap-0.5 py-2 md:py-3 rounded-xl text-center transition-all
               ${
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-sm"
