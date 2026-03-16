@@ -5,9 +5,14 @@ export interface MenuItem {
   price: string;
 }
 
+export interface WeeklyMenuItem {
+  category: string;
+  descs: string[];
+}
+
 export interface WeeklyDayMenu {
   day: string;
-  items: { category: string; desc: string }[];
+  items: WeeklyMenuItem[];
 }
 
 export interface Shop {

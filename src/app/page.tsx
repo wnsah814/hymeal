@@ -283,7 +283,7 @@ function DailyMenu({
             <Badge variant="secondary" className="w-fit">
               {item.category}
             </Badge>
-            <p className="text-sm leading-relaxed">{item.desc}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-line">{item.category === "천원의 아침밥" ? item.descs.join("\n") : item.descs.join(" ")}</p>
           </CardContent>
         </Card>
       ))}
@@ -353,7 +353,9 @@ function WeeklyMenu({
                         isToday ? "bg-primary/5" : ""
                       }`}
                     >
-                      {item?.desc || (
+                      {item && item.descs.length > 0 ? (
+                        <p className="whitespace-pre-line">{item.category === "천원의 아침밥" ? item.descs.join("\n") : item.descs.join(" ")}</p>
+                      ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </td>
@@ -394,7 +396,7 @@ function WeeklyMenu({
                         <Badge variant="secondary" className="w-fit">
                           {item.category}
                         </Badge>
-                        <p className="text-sm leading-relaxed">{item.desc}</p>
+                        <p className="text-sm leading-relaxed whitespace-pre-line">{item.category === "천원의 아침밥" ? item.descs.join("\n") : item.descs.join(" ")}</p>
                       </CardContent>
                     </Card>
                   ))}
