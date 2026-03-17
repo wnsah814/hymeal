@@ -5,15 +5,20 @@ import type { MenuResponse } from "@/lib/types";
 const BASE_URL = "https://fnb.hanyang.ac.kr/front/fnbmMdMenu";
 
 function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + days);
+  const ry = date.getFullYear();
+  const rm = String(date.getMonth() + 1).padStart(2, "0");
+  const rd = String(date.getDate()).padStart(2, "0");
+  return `${ry}-${rm}-${rd}`;
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const date =
-    searchParams.get("date") || new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const date = searchParams.get("date") || fallback;
 
   try {
     // Fetch all 6 days (Mon-Sat) in parallel to get donation (천원의 아침밥) data for each day
