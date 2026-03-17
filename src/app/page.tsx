@@ -54,12 +54,18 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedShop, setSelectedShop] = useState<string | null>(null);
-  const [selectedDay, setSelectedDay] = useState<number>(
-    Math.max(0, Math.min(getTodayDayIndex(), 5))
-  );
+  const [selectedDay, setSelectedDay] = useState<number>(0);
   const [viewTab, setViewTab] = useState<string>("daily");
+  const [mounted, setMounted] = useState(false);
 
-  const monday = getMonday(addDays(new Date(), weekOffset * 7));
+  useEffect(() => {
+    setSelectedDay(Math.max(0, Math.min(getTodayDayIndex(), 5)));
+    setMounted(true);
+  }, []);
+
+  const monday = mounted
+    ? getMonday(addDays(new Date(), weekOffset * 7))
+    : getMonday(new Date());
   const mondayStr = formatDate(monday);
 
   const fetchMenu = useCallback(async () => {
@@ -79,8 +85,8 @@ export default function Home() {
   }, [mondayStr]);
 
   useEffect(() => {
-    fetchMenu();
-  }, [fetchMenu]);
+    if (mounted) fetchMenu();
+  }, [mounted, fetchMenu]);
 
   const currentShop = data?.shops.find((s) => s.id === selectedShop);
   const isCheyuk = selectedShop === CHEYUK_SHOP_ID;
